@@ -2,6 +2,6 @@
 	"name": "tb-bzagent",
 	"version": "0.0.1",
 	"dependencies": {
-	    "BZRFlag-nodejs-client": "trevordixon/BZRFlag-nodejs-client"
+	    "BZRFlag-nodejs-client": "stringham/BZRFlag-nodejs-client"
 	}
 }
