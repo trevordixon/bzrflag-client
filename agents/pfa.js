@@ -32,25 +32,25 @@ function onUpdate(state) {
 	var fields = staticFields.slice(0);
 
 	var i;
-	for (i = 0; i < flags.length; ++i) {
-		if (flags[i]['color'] !== myColor && flags[i]['possessionColor'] !== myColor) {// not my flag and not in my possession
-			fields.push(new Field([flags[i]['loc']['x'], flags[i]['loc']['y']], constants['flagradius'], 900, 'seek', 5));
+	flags.forEach(function(flag) {
+		if (flag.color !== myColor && flag.possessionColor !== myColor) {// not my flag and not in my possession
+			fields.push(new Field([flag.loc.x, flag.loc.y], constants.flagradius, 900, 'seek', 5));
 		}
-	}
+	});
 
-	for (i = 0; i < myTanks.length; ++i) {
-		var gradient = pf.gradient([myTanks[i]['loc']['x'], myTanks[i]['loc']['y']], fields);
-		if (myTanks[i]['flag'] !== '-') {//our tank has a flag!!
+	myTanks.forEach(function(tank) {
+		var gradient = pf.gradient([tank.loc.x, tank.loc.y], fields);
+		if (tank.flag !== '-') {//our tank has a flag!!
 			fields.push(myBaseField);
 			console.log('I haz flag! Going home.');
 		}
 
 		var position = {
-			"x": myTanks[i]['loc']['x'] + gradient[0],
-			"y": myTanks[i]['loc']['y'] + gradient[1]
+			"x": tank.loc.x + gradient[0],
+			"y": tank.loc.y + gradient[1]
 		}
-		moveToPosition(myTanks[i], position);
-	}
+		moveToPosition(tank, position);
+	});
 
 	console.log('updated instructions');
 }
