@@ -2,18 +2,19 @@
 
 var pf = require('../lib/potential-fields');
 
-function Field(location, radius, spread, type) {
+function Field(location, radius, spread, type, alpha) {
 	this.location = location;
 	this.radius = radius;
 	this.spread = spread;
 	this.type = type;
+    this.alpha = alpha;
 }
 
 
 var fields = [
-    new Field([20, 20], 2, 9, 'seek'),
-    new Field([40, 40], 2, 9, 'seek'),
-    new Field([10, 40], 2, 4, 'avoid')
+    new Field([20, 20], 2, 9, 'seek', 2),
+    new Field([40, 40], 2, 9, 'seek', 2),
+    new Field([10, 40], 2, 4, 'avoid', 20)
 ];
 
 var g = [];
