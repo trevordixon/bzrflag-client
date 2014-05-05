@@ -14,14 +14,12 @@ if (process.argv.length > 2) {
 	process.exit();
 }
 
-var e = new EventEmitter();
-
 var constants, bases, obstacles;
 
 init(updateContinously);
-e.on('update', function(state) {
+function onUpdate(state) {
 	console.log(state);
-});
+}
 
 function init(cb) {
 	async.parallel([
@@ -59,7 +57,7 @@ function updateContinously() {
 					done(null, flags);
 				});
 			}], function(err, results) {
-				e.emit('update', results);
+				setImmediate(onUpdate, results);
 				setImmediate(repeat);
 			});
 		}
