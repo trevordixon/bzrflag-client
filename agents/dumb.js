@@ -8,12 +8,6 @@ function Team(client){
 
 Team.prototype.init = function() {
 	var me = this;
-	this.client.getConstants(function(constants){
-		me.constants = constants;
-	});
-	this.client.getBases(function(bases){
-		me.bases = bases;
-	});
 	this.client.getMyTanks(function(myTanks, time){
 		myTanks.forEach(function(tank){
 			me.myTanks[tank.index] = tank;
@@ -38,37 +32,53 @@ Team.prototype.update = function(done) {
 		});
 
 		me.lastUpdated = time;
-		done();
+		done.call(me);
 	});
 };
 
-function moveForwardFor3to8SecondsThenRotate60DegreesAdNauseum(tank) {
+Team.prototype.continuouslyUpdate = function() {
+	this.update(function() {
+		setImmediate(this.continuouslyUpdate.bind(this));
+	});
+};
+
+Team.prototype.moveForwardFor3to8SecondsThenRotate60DegreesAdNauseum = function moveForwardFor3to8SecondsThenRotate60DegreesAdNauseum(tank) {
 	var self = this;
 	this.client.speed(tank.index, 1);
 	setTimeout(function() {
 		self.client.speed(tank.index, 0);
-		rotate60Degrees(tank, function doneTurning() {
-			moveForwardFor3to8SecondsThenRotate60DegreesAdNauseum(tank);
+		self.rotate60Degrees(tank, function doneTurning() {
+			self.moveForwardFor3to8SecondsThenRotate60DegreesAdNauseum(tank);
 		});
 	}, (Math.random() * 5000) + 3000);
 }
 
-function rotate60Degrees(tank, cb) {
-	// TODO: rotate 60 degrees, then call cb
+Team.prototype.rotate60Degrees = function rotate60Degrees(tank, cb) {
+	var self = this;
+	this.client.angvel(tank.index, 0.5, function() {
+		setTimeout(function() {
+			self.client.angvel(tank.index, 0, cb);
+		}, 2000);
+	});
+
 }
 
-function shootRandomly(tank) {
-	// TODO: make the tank shoot every 1.5-2.5 seconds
+Team.prototype.shootRandomly = function shootRandomly(tank) {
+	var self = this;
+	setTimeout(function() {
+		self.client.shoot(tank.index);
+		self.shootRandomly(tank);
+	}, (Math.random() * 1000) + 1500);
 }
 
 Team.prototype.start = function start() {
-	var self = this;
-	this.update(function () {
-		for (id in self.myTanks) {
-			var tank = me.myTanks[id];
-			moveForwardFor3to8SecondsThenRotate60DegreesAdNauseum(tank);
-			shootRandomly(tank);
-		}
+	this.continuouslyUpdate();
+	this.update(function() {
+		for (id in this.myTanks) {
+			var tank = this.myTanks[id];
+			this.moveForwardFor3to8SecondsThenRotate60DegreesAdNauseum(tank);
+			this.shootRandomly(tank);
+		}	
 	});
 };
 
