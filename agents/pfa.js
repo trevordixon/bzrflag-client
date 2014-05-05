@@ -76,13 +76,13 @@ function continueInit() {
 
 function initStaticFields() {
 	staticFields = obstacles.map(function(obstacle) {
-		var circle = require('./smallestCircle')(obstacle);
+		var circle = require('../lib/smallest-circle')(obstacle);
 		return {
-			location: [circle.x, circle.y];
-			radius: circle.r;
-			spread: 10;
-			type: 'avoid';
-			alpha: 2;
+			location: [circle.x, circle.y],
+			radius: circle.r,
+			spread: 10,
+			type: 'avoid',
+			alpha: 2
 		};
 	});
 }
