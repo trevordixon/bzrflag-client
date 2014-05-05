@@ -23,8 +23,7 @@ if (process.argv.length > 2) {
 	process.exit();
 }
 
-var constants, bases, obstacles;
-var staticFields = [];
+var constants, bases, obstacles, staticFields;
 
 init(continueInit);
 function onUpdate(state) {
@@ -76,13 +75,16 @@ function continueInit() {
 }
 
 function initStaticFields() {
-	var i;
-	for (i = 0; i < obstacles.length; ++i) {
-		var j;
-		for (j = 0; j < obstacles[i].length; ++j) {
-			staticFields.push(new Field([obstacles[i][j]['x'], obstacles[i][j]['y']], 1, 50, 'avoid', 2));
-		}
-	}
+	staticFields = obstacles.map(function(obstacle) {
+		var circle = require('./smallestCircle')(obstacle);
+		return {
+			location: [circle.x, circle.y];
+			radius: circle.r;
+			spread: 10;
+			type: 'avoid';
+			alpha: 2;
+		};
+	});
 }
 
 function updateContinously() {
