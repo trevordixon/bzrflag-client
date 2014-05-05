@@ -23,19 +23,6 @@ function onUpdate(state) {
 	var flags = state[1];
 	var fields = staticFields.slice(0);
 
-	var i;
-	flags.forEach(function(flag) {
-		if (flag.color !== myColor && flag.possessionColor !== myColor) {// not my flag and not in my possession
-			fields.push({
-				location: [flag.loc.x, flag.loc.y],
-				radius: constants.flagradius,
-				spread: 900,
-				type: 'seek',
-				alpha: 5
-			});
-		}
-	});
-
 	myTanks.forEach(function(tank) {
 		var gradient;
 		if (tank.flag !== '-') {//our tank has a flag!!
@@ -44,7 +31,19 @@ function onUpdate(state) {
 			console.log('I haz flag! Going home.');
 			gradient = pf.gradient([tank.loc.x, tank.loc.y], winFields);
 		} else {
-			gradient = pf.gradient([tank.loc.x, tank.loc.y], fields);
+			var captureFields = fields.slice(0);
+			flags.forEach(function(flag) {
+				if (flag.color !== myColor && flag.possessionColor !== myColor) {// not my flag and not in my possession
+					captureFields.push({
+						location: [flag.loc.x, flag.loc.y],
+						radius: constants.flagradius,
+						spread: 8000,
+						type: 'seek',
+						alpha: 20
+					});
+				}
+			});
+			gradient = pf.gradient([tank.loc.x, tank.loc.y], captureFields);
 		} 
 
 		var position = {
@@ -91,9 +90,9 @@ function continueInit() {
 			myBaseField = {
 				location: [baseCircle.x, baseCircle.y],
 				radius: baseCircle.r,
-				spread: 100,
+				spread: 8000,
 				type: 'seek',
-				alpha: 10
+				alpha: 20
 			};
 		}
 	}
@@ -106,9 +105,9 @@ function initStaticFields() {
 		return {
 			location: [circle.x, circle.y],
 			radius: circle.r,
-			spread: 10,
+			spread: 20,
 			type: 'avoid',
-			alpha: 2
+			alpha: 400
 		};
 	});
 }

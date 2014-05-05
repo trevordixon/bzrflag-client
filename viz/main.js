@@ -10,19 +10,96 @@ function Field(location, radius, spread, type, alpha) {
     this.alpha = alpha;
 }
 
+var fields = 
+[ { location: [ 120, 120 ],
+    radius: 42.42640687119285,
+    spread: 20,
+    type: 'avoid',
+    alpha: 4 },
+  { location: [ 120, 180 ],
+    radius: 42.42640687119285,
+    spread: 20,
+    type: 'avoid',
+    alpha: 4 },
+  { location: [ 180, 120 ],
+    radius: 42.42640687119285,
+    spread: 20,
+    type: 'avoid',
+    alpha: 4 },
+  { location: [ 120, -120 ],
+    radius: 42.42640687119285,
+    spread: 20,
+    type: 'avoid',
+    alpha: 4 },
+  { location: [ 180, -120 ],
+    radius: 42.42640687119285,
+    spread: 20,
+    type: 'avoid',
+    alpha: 4 },
+  { location: [ 120, -180 ],
+    radius: 42.42640687119285,
+    spread: 20,
+    type: 'avoid',
+    alpha: 4 },
+  { location: [ -120, -120 ],
+    radius: 42.42640687119285,
+    spread: 20,
+    type: 'avoid',
+    alpha: 4 },
+  { location: [ -120, -180 ],
+    radius: 42.42640687119285,
+    spread: 20,
+    type: 'avoid',
+    alpha: 4 },
+  { location: [ -180, -120 ],
+    radius: 42.42640687119285,
+    spread: 20,
+    type: 'avoid',
+    alpha: 4 },
+  { location: [ -120, 120 ],
+    radius: 42.42640687119285,
+    spread: 20,
+    type: 'avoid',
+    alpha: 4 },
+  { location: [ -120, 180 ],
+    radius: 42.42640687119285,
+    spread: 20,
+    type: 'avoid',
+    alpha: 4 },
+  { location: [ -180, 120 ],
+    radius: 42.42640687119285,
+    spread: 20,
+    type: 'avoid',
+    alpha: 4 },
+  { location: [ 0, 0 ],
+    radius: 60.8276253029822,
+    spread: 20,
+    type: 'avoid',
+    alpha: 4 },
+  { location: [ 0, 370 ],
+    radius: '2.5',
+    spread: 8000,
+    type: 'seek',
+    alpha: 20 },
+  { location: [ 0, -370 ],
+    radius: '2.5',
+    spread: 8000,
+    type: 'seek',
+    alpha: 20 },
+  { location: [ -370, 0 ],
+    radius: '2.5',
+    spread: 8000,
+    type: 'seek',
+    alpha: 20 } ]
 
-var fields = [
-    new Field([20, 20], 2, 9, 'seek', 30),
-    new Field([40, 40], 2, 9, 'seek', 30),
-    new Field([10, 40], 2, 4, 'avoid', 20)
-];
+;
 
 var g = [];
 for (var x = 0; x < 80; x++) {
     for (var y = 0; y < 80; y++) {
 //        g[x] = g[x] || [];
 //        g[x][y] = gradient([x, y], fields);
-        var _g = pf.gradient([x, y], fields);
+        var _g = pf.gradient([30*x, 30*y], fields);
         g.push({
             x: x, y: y,
             value: {
