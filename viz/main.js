@@ -12,14 +12,14 @@ function Field(location, radius, spread, type, alpha) {
 
 
 var fields = [
-    new Field([20, 20], 2, 9, 'seek', 2),
-    new Field([40, 40], 2, 9, 'seek', 2),
+    new Field([20, 20], 2, 9, 'seek', 30),
+    new Field([40, 40], 2, 9, 'seek', 30),
     new Field([10, 40], 2, 4, 'avoid', 20)
 ];
 
 var g = [];
-for (var x = 0; x < 50; x++) {
-    for (var y = 0; y < 50; y++) {
+for (var x = 0; x < 80; x++) {
+    for (var y = 0; y < 80; y++) {
 //        g[x] = g[x] || [];
 //        g[x][y] = gradient([x, y], fields);
         var _g = pf.gradient([x, y], fields);
@@ -33,13 +33,13 @@ for (var x = 0; x < 50; x++) {
     }
 }
 
-var width = 800, height = 600;
+var width = 1200, height = 900;
 
 var xscale = d3.scale.linear()
-               .domain([0,50])
+               .domain([0,80])
                .range([0,width]),
     yscale = d3.scale.linear()
-               .domain([0,50])
+               .domain([0,80])
                .range([0,height]),
     map = d3.floorplan().xScale(xscale).yScale(yscale),
     vectorfield = d3.floorplan.vectorfield(),
