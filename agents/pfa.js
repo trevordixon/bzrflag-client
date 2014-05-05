@@ -39,11 +39,15 @@ function onUpdate(state) {
 	});
 
 	myTanks.forEach(function(tank) {
-		var gradient = pf.gradient([tank.loc.x, tank.loc.y], fields);
+		var gradient;
 		if (tank.flag !== '-') {//our tank has a flag!!
-			fields.push(myBaseField);
+			var winFields = fields.slice(0);
+			winFields.push(myBaseField);
 			console.log('I haz flag! Going home.');
-		}
+			gradient = pf.gradient([tank.loc.x, tank.loc.y], winFields);
+		} else {
+			gradient = pf.gradient([tank.loc.x, tank.loc.y], fields);
+		} 
 
 		var position = {
 			"x": tank.loc.x + gradient[0],
