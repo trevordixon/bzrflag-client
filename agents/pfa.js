@@ -5,14 +5,6 @@ var async = require('async');
 var BZRClient = require('bzrflag-client');
 var pf = require('../lib/potential-fields');
 
-function Field(location, radius, spread, type, alpha) {
-	this.location = location;
-	this.radius = radius;
-	this.spread = spread;
-	this.type = type;
-	this.alpha = alpha;
-}
-
 var client;
 
 if (process.argv.length > 2) {
@@ -34,7 +26,13 @@ function onUpdate(state) {
 	var i;
 	flags.forEach(function(flag) {
 		if (flag.color !== myColor && flag.possessionColor !== myColor) {// not my flag and not in my possession
-			fields.push(new Field([flag.loc.x, flag.loc.y], constants.flagradius, 900, 'seek', 5));
+			fields.push({
+				location: [flag.loc.x, flag.loc.y],
+				radius: constants.flagradius,
+				spread: 900,
+				type: 'seek',
+				alpha: 5
+			});
 		}
 	});
 
