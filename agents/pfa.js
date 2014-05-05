@@ -116,8 +116,7 @@ function initStaticFields() {
 }
 
 function updateContinously() {
-	async.whilst(
-		function() { return true; },
+	async.forever(
 		function(repeat) {
 			async.parallel([function getTanks(done) {
 				client.getMyTanks(function(myTanks) {
