@@ -23,7 +23,7 @@ if (process.argv.length > 2) {
 	process.exit();
 }
 
-var constants, bases, obstacles, staticFields,  myBaseField, myColor;
+var constants, bases, obstacles, staticFields, myBaseField, myColor;
 
 init(continueInit);
 function onUpdate(state) {
@@ -41,7 +41,7 @@ function onUpdate(state) {
 	for (i = 0; i < myTanks.length; ++i) {
 		var gradient = pf.gradient([myTanks[i]['loc']['x'], myTanks[i]['loc']['y']], fields);
 		if (myTanks[i]['flag'] !== '-') {//our tank has a flag!!
-			//fields.push(myBaseField);
+			fields.push(myBaseField);
 			console.log('I haz flag! Going home.');
 		}
 
@@ -85,8 +85,14 @@ function continueInit() {
 	for (i = 0; i < bases.length; ++i) {
 		if (bases[i]['color'] === myColor) {
 			var myBase = bases[i];
-			// put myBaseField = {} here
-
+			var baseCircle = require('../lib/smallest-circle')(myBase.corners);
+			myBaseField = {
+				location: [baseCircle.x, baseCircle.y],
+				radius: baseCircle.r,
+				spread: 100,
+				type: 'seek',
+				alpha: 10
+			};
 		}
 	}
 	updateContinously();
@@ -124,9 +130,6 @@ function updateContinously() {
 		}
 	);
 }
-
-
-
 
 function moveToPosition(tank, pos, callback) {
 	var angle = Math.atan2(pos.y-tank.loc.y,pos.x-tank.loc.x);
