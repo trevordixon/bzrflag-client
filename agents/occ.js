@@ -16,83 +16,24 @@ if (process.argv.length > 2) {
   process.exit();
 }
 
-var constants, bases, obstacles, staticFields, myBaseField, myColor;
-var occ;
+var constants, occ;
 
-init(continueInit);
-function onUpdate(state) {
-  var start = Date.now();
+init();
 
-  var myTanks = state[0];
-  var flags = state[1];
-  var fields = staticFields.slice(0);
-
-  var i;
-
-  occ.update(0, 0, true);
-
-  myTanks.forEach(function(tank) {
-    var gradient;
-    if (tank.flag !== '-') {//our tank has a flag!!
-      var winFields = fields.slice(0);
-      winFields.push(myBaseField);
-      // console.log('I haz flag! Going home.');
-      gradient = pf.gradient([tank.loc.x, tank.loc.y], winFields);
-    } else {
-      gradient = pf.gradient([tank.loc.x, tank.loc.y], fields);
-    } 
-
-    var position = {
-      "x": tank.loc.x + gradient[0],
-      "y": tank.loc.y + gradient[1]
-    }
-    moveToPosition(tank, position, function() {
-
-      console.log('updated instructions in ' + (Date.now() - start));
-    });
+function init() {
+  client.getConstants(function(c) {
+    constants = c;
+    continueInit();
   });
 }
 
-function init(cb) {
-  async.parallel([
-    function(done) {
-      client.getConstants(function(c) {
-        constants = c;
-        done();
-      });
-    },
-    function(done) {
-      client.getBases(function(b) {
-        bases = b;
-        done();
-      });
-    },
-    function(done) {
-      client.getObstacles(function(o) {
-        obstacles = o;
-        done();
-      });
-    }
-  ], cb);
-}
-
 function continueInit() {
+  var worldSize = constants['worldsize'];
+  var pos = constants['truepositive'];
+  var pnons = constants['truenegative'];
+  var ps = 0.01;
   occ = new OccWorld(worldSize, pos, pnons, ps);
-  myColor = constants['team'];
-  var i;
-  for (i = 0; i < bases.length; ++i) {
-    if (bases[i]['color'] === myColor) {
-      var myBase = bases[i];
-      var baseCircle = require('../lib/smallest-circle')(myBase.corners);
-      myBaseField = {
-        location: [baseCircle.x, baseCircle.y],
-        radius: baseCircle.r,
-        spread: 100,
-        type: 'seek',
-        alpha: 10
-      };
-    }
-  }
+
   updateContinously();
 }
 
@@ -109,7 +50,7 @@ function updateContinously() {
           done(null, myTanks);
         });
       }, function getGrids(done) {
-
+          done(null, null);
       }], function(err, results) {
         console.log('took ' + (Date.now() - start));
         onUpdate(results);
@@ -117,6 +58,32 @@ function updateContinously() {
       });
     }
   );
+}
+
+function onUpdate(state) {
+  var start = Date.now();
+
+  var myTanks = state[0];
+
+  occ.update(0, 0, true);
+
+  myTanks.forEach(function(tank) {
+    
+    var grid = client.getOccgrid(tank.index, function(grid) {
+      console.log(grid);
+    });
+
+/*    var gradient = pf.gradient([tank.loc.x, tank.loc.y], fields);
+    var position = {
+      "x": tank.loc.x + gradient[0],
+      "y": tank.loc.y + gradient[1]
+    }
+    moveToPosition(tank, position, function() {
+      console.log('updated instructions in ' + (Date.now() - start));
+    });
+*/
+
+  });
 }
 
 function moveToPosition(tank, pos, callback) {
