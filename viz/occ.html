@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>occGrid Viz</title>
+<script src="http://rawgit.com/joewalnes/reconnecting-websocket/master/reconnecting-websocket.js"></script>
+</head>
+<body>
+  <canvas id="viz"></canvas>
+  <script>
+  var ws = new ReconnectingWebSocket('ws://localhost:4000');
+  ws.onopen = function() { console.info('Connected'); };
+  ws.onclose = function() { console.info('Disconnected'); ws.onmessage = init; };
+  ws.onmessage = init;
+
+  var canvas = document.getElementById('viz');
+  var ctx = canvas.getContext('2d');
+
+  function setPixel(i, j, val) {
+    var c = Math.round(255*(1-val));
+    ctx.fillStyle = "rgb("+c+","+c+","+c+")";
+    ctx.fillRect(i, j, 1, 1);
+  }
+
+  function init(e) {
+    var world = JSON.parse(e.data);
+    canvas.width = canvas.height = world.length;
+
+    for (var i = 0; i < world.length; i++) {
+      for (var j = 0; j < world[i].length; j++) {
+        setPixel(i, j, world[i][j]);
+      }
+    }
+
+    ws.onmessage = update;
+  }
+
+  function update(e) {
+    var updates = JSON.parse(e.data);
+    for (var cell in updates) {
+      var val = updates[cell];
+      cell = cell.split(',');
+      setPixel(cell[0], cell[1], val);
+    }
+  }
+  </script>
+</body>
+</html>
