@@ -28,9 +28,9 @@ function init() {
 }
 
 function continueInit() {
-  var worldSize = constants['worldsize'];
-  var pos = constants['truepositive'];
-  var pnons = constants['truenegative'];
+  var worldSize = parseInt(constants['worldsize'], 10);
+  var pos = parseFloat(constants['truepositive']);
+  var pnons = parseFloat(constants['truenegative']);
   var ps = 0.01;
   
   occ = new OccWorld(worldSize, pos, pnons, ps);
@@ -43,18 +43,18 @@ var start;
 function updateContinously() {
   async.forever(
     function(repeat) {
-      start = Date.now();
+      console.time('query');
       console.log('querying');
       async.parallel([function getTanks(done) {
-        var startT = Date.now();
+        console.time('get tanks');
         client.getMyTanks(function(myTanks) {
-          console.log('got tanks in ' + (Date.now() - startT));
+          console.timeEnd('get tanks');
           done(null, myTanks);
         });
       }, function getGrids(done) {
           done(null, null);
       }], function(err, results) {
-        console.log('took ' + (Date.now() - start));
+        console.timeEnd('query');
         onUpdate(results);
         repeat();
       });
@@ -63,16 +63,20 @@ function updateContinously() {
 }
 
 function onUpdate(state) {
-  var start = Date.now();
-
   var myTanks = state[0];
-
-  occ.update(0, 0, true);
-
   myTanks.forEach(function(tank) {
-    
-    var grid = client.getOccgrid(tank.index, function(grid) {
-      console.log(grid);
+    console.log('get grid');
+    client.getOccgrid(tank.index, function(_occ) {
+      console.log('got grid');
+      var grid = _occ.grid, pos = _occ.pos;
+      for (var i = 0; i < grid.length; i++) {
+        for (var j = 0; j < grid[i].length; j++) {
+          var reading = grid[i][j];
+          if ((i + pos.x + 400) >= 800 || (j - pos.y + 400) >= 800) continue;
+          if ((i + pos.x + 400) < 0 || (j - pos.y + 400) < 0) continue;
+          occ.update(i + pos.x + 400, j - pos.y + 400, reading);
+        };
+      }
     });
 
 /*    var gradient = pf.gradient([tank.loc.x, tank.loc.y], fields);
@@ -98,20 +102,3 @@ function moveToPosition(tank, pos, callback) {
   client.angvel(tank.index, relativeAngle/2, callback);
   client.shoot(tank.index);
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
