@@ -32,7 +32,9 @@ function continueInit() {
   var pos = constants['truepositive'];
   var pnons = constants['truenegative'];
   var ps = 0.01;
+  
   occ = new OccWorld(worldSize, pos, pnons, ps);
+  occ.initWebSocket();
 
   updateContinously();
 }
@@ -84,6 +86,8 @@ function onUpdate(state) {
 */
 
   });
+
+  occ.sendVizUpdates();
 }
 
 function moveToPosition(tank, pos, callback) {

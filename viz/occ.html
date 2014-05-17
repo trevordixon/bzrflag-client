@@ -16,11 +16,16 @@
   var ctx = canvas.getContext('2d');
 
   function setPixel(i, j, val) {
-    var c = Math.round(255*(1-val));
+    // val is a value between 0 and 1. We want values close to 0 to be light, so use 1-val,
+    // then convert to 0-255 range. This will be used for the r, g, and b components of the
+    // color to get a shade of gray that's close to black when we're confident there's an
+    // obstacle there, and close to white when we're confident there isn't.
+    var c = Math.round(5 + 240*(1-val));
     ctx.fillStyle = "rgb("+c+","+c+","+c+")";
     ctx.fillRect(i, j, 1, 1);
   }
 
+  // Handles the first message from the server after connecting. Array of arrays of initial values.
   function init(e) {
     var world = JSON.parse(e.data);
     canvas.width = canvas.height = world.length;
@@ -31,9 +36,17 @@
       }
     }
 
+    // Once initial world has been received, switch to use a new onmessage handler.
     ws.onmessage = update;
   }
 
+  // Handles batch of updates from the server. Each batch looks like:
+  // {
+  //    "i1,j1": 0.01,
+  //    "i2,j2": 0.01,
+  //    "i3,j3": 0.01,
+  //    ...
+  // }
   function update(e) {
     var updates = JSON.parse(e.data);
     for (var cell in updates) {
