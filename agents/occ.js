@@ -97,83 +97,106 @@ function onUpdate(state) {
       }
     });
 
-    // from outside in
-    var tankGroup = (tank.index % 8) + 1;
-    var pointFound = false;
-    if (tankGroup == 1) { // top left
-      for (var i = 0; i < occ.world.length/2 && !pointFound; i++) {
-        for (var j = 0; j < occ.world[i].length/2 && !pointFound; j++) {
-          pointFound = shouldIGoToThisPoint(i, j, occ.world[i][j], tank);
-        }
-      }
-    } else if (tankGroup == 2) { // top right
-      for (var i = occ.world.length - 1; i >= occ.world.length/2 && !pointFound; i--) {
-        for (var j = 0; j < occ.world[i].length/2 && !pointFound; j++) {
-          pointFound = shouldIGoToThisPoint(i, j, occ.world[i][j], tank);
-        }
-      }
-    } else if (tankGroup == 3) { // bottom left
-      for (var i = 0; i < occ.world.length/2 && !pointFound; i++) {
-        for (var j = occ.world[i].length - 1; j >= occ.world[i].length/2 && !pointFound; j--) {
-          pointFound = shouldIGoToThisPoint(i, j, occ.world[i][j], tank);
-        }
-      }
-    } else if (tankGroup == 4) { // bottom right
-      for (var i = occ.world.length - 1; i >= occ.world.length/2 && !pointFound; i--) {
-        for (var j = occ.world[i].length - 1; j >= occ.world[i].length/2 && !pointFound; j--) {
-          pointFound = shouldIGoToThisPoint(i, j, occ.world[i][j], tank);
-        }
-      }
+    var finishedMyQuadrant = explore(tank, false);
+    if (finishedMyQuadrant) {
+      console.log("Help a brother out! -Tank " + tank.index);
+      explore(tank, true);
     }
-    //from inside to outside
-    else if (tankGroup == 5) { // top left
-      for (var i = occ.world.length/2; i >= 0 && !pointFound; i--) {
-        for (var j = occ.world[i].length/2; j >= 0 && !pointFound; j--) {
-          pointFound = shouldIGoToThisPoint(i, j, occ.world[i][j], tank);
-        }
-      }
-    } else if (tankGroup == 6) { // top right
-      for (var i = occ.world.length/2; i < occ.world.length && !pointFound; i++) {
-        for (var j = occ.world[i].length/2; j >= 0 && !pointFound; j--) {
-          pointFound = shouldIGoToThisPoint(i, j, occ.world[i][j], tank);
-        }
-      }
-    } else if (tankGroup == 7) { // bottom left
-      for (var i = occ.world.length/2; i >= 0 && !pointFound; i--) {
-        for (var j = occ.world[i].length/2; j < occ.world[i].length && !pointFound; j++) {
-          pointFound = shouldIGoToThisPoint(i, j, occ.world[i][j], tank);
-        }
-      }
-    } else if (tankGroup == 8) { // bottom right
-      for (var i = occ.world.length/2; i < occ.world.length && !pointFound; i++) {
-        for (var j = occ.world[i].length/2; j < occ.world[i].length && !pointFound; j++) {
-          pointFound = shouldIGoToThisPoint(i, j, occ.world[i][j], tank);
-        }
-      }
-    }
-
-/*    var gradient = pf.gradient([tank.loc.x, tank.loc.y], fields);
-    var position = {
-      "x": tank.loc.x + gradient[0],
-      "y": tank.loc.y + gradient[1]
-    }
-    moveToPosition(tank, position, function() {
-      //console.log('updated instructions in ' + (Date.now() - start));
-    });
-*/
-
   });
 
   occ.sendVizUpdates();
 }
 
+function explore(tank, anyQuadrant) {
+  var tankGroup = (tank.index % 8) + 1;
+  var pointFound = false;
+  var finishedMyQuadrant = false;
+
+  // from outside in
+  if (tankGroup == 1 || (!pointFound && anyQuadrant)) { // top left
+    for (var i = 0; i < occ.world.length/2 && !pointFound; i++) {
+      for (var j = 0; j < occ.world[i].length/4 && !pointFound; j++) {
+        pointFound = shouldIGoToThisPoint(i, j, occ.world[i][j], tank);
+      }
+    }
+    console.log("Tank " + tank.index + " working in quadrant 1");
+    finishedMyQuadrant = !pointFound;
+  } 
+  if (tankGroup == 2 || (!pointFound && anyQuadrant)) { // top right
+    for (var i = occ.world.length - 1; i >= occ.world.length/2 && !pointFound; i--) {
+      for (var j = 0; j < occ.world[i].length/4 && !pointFound; j++) {
+        pointFound = shouldIGoToThisPoint(i, j, occ.world[i][j], tank);
+      }
+    }
+    console.log("Tank " + tank.index + " working in quadrant 2");
+    finishedMyQuadrant = !pointFound;
+  }
+  if (tankGroup == 3 || (!pointFound && anyQuadrant)) { // bottom left
+    for (var i = 0; i < occ.world.length/2 && !pointFound; i++) {
+      for (var j = occ.world[i].length - 1; j >= 3 * occ.world[i].length/4 && !pointFound; j--) {
+        pointFound = shouldIGoToThisPoint(i, j, occ.world[i][j], tank);
+      }
+    }
+    console.log("Tank " + tank.index + " working in quadrant 3");
+    finishedMyQuadrant = !pointFound;
+  }
+  if (tankGroup == 4 || (!pointFound && anyQuadrant)) { // bottom right
+    for (var i = occ.world.length - 1; i >= occ.world.length/2 && !pointFound; i--) {
+      for (var j = occ.world[i].length - 1; j >= 3 * occ.world[i].length/4 && !pointFound; j--) {
+        pointFound = shouldIGoToThisPoint(i, j, occ.world[i][j], tank);
+      }
+    }
+    console.log("Tank " + tank.index + " working in quadrant 4");
+    finishedMyQuadrant = !pointFound;
+  }
+  //from inside to outside
+  if (tankGroup == 5 || (!pointFound && anyQuadrant)) { // middle top left
+    for (var i = occ.world.length/2; i >= 0 && !pointFound; i--) {
+      for (var j = occ.world[i].length/2; j >= occ.world[i].length/4 && !pointFound; j--) {
+        pointFound = shouldIGoToThisPoint(i, j, occ.world[i][j], tank);
+      }
+    }
+    console.log("Tank " + tank.index + " working in quadrant 5");
+    finishedMyQuadrant = !pointFound;
+  }
+  if (tankGroup == 6 || (!pointFound && anyQuadrant)) { // middle top right
+    for (var i = occ.world.length/2; i < occ.world.length && !pointFound; i++) {
+      for (var j = occ.world[i].length/2; j >= occ.world[i].length/4 && !pointFound; j--) {
+        pointFound = shouldIGoToThisPoint(i, j, occ.world[i][j], tank);
+      }
+    }
+    console.log("Tank " + tank.index + " working in quadrant 6");
+    finishedMyQuadrant = !pointFound;
+  }
+  if (tankGroup == 7 || (!pointFound && anyQuadrant)) { // middle bottom left
+    for (var i = occ.world.length/2; i >= 0 && !pointFound; i--) {
+      for (var j = occ.world[i].length/2; j < 3 * occ.world[i].length/4 && !pointFound; j++) {
+        pointFound = shouldIGoToThisPoint(i, j, occ.world[i][j], tank);
+      }
+    }
+    console.log("Tank " + tank.index + " working in quadrant 7");
+    finishedMyQuadrant = !pointFound;
+  }
+  if (tankGroup == 8 || (!pointFound && anyQuadrant)) { // middle bottom right
+    for (var i = occ.world.length/2; i < occ.world.length && !pointFound; i++) {
+      for (var j = occ.world[i].length/2; j < 3 * occ.world[i].length/4 && !pointFound; j++) {
+        pointFound = shouldIGoToThisPoint(i, j, occ.world[i][j], tank);
+      }
+    }
+    console.log("Tank " + tank.index + " working in quadrant 8");
+    finishedMyQuadrant = !pointFound;
+  }
+
+  return finishedMyQuadrant;
+}
+
 function moveToPosition(tank, pos, callback) {
-  //console.log("tank " + tank.index + " moving to point " + pos.x + "," + pos.y);
+  console.log("tank " + tank.index + " moving to point " + pos.x + "," + pos.y);
 
   var angle = Math.atan2(pos.y-tank.loc.y,pos.x-tank.loc.x);
   var relativeAngle = Math.atan2(Math.sin(angle - tank.angle), Math.cos(angle - tank.angle));
   var distance = Math.sqrt(Math.pow(pos.x-tank.loc.x,2)+Math.pow(pos.y-tank.loc.y,2));
   client.speed(tank.index, Math.min(distance/60,1));
   client.angvel(tank.index, relativeAngle/2, callback);
-  //client.shoot(tank.index);
+  client.shoot(tank.index);
 };
