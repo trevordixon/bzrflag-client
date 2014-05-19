@@ -169,7 +169,7 @@ function explore(tank, anyQuadrant) {
     finishedMyQuadrant = !pointFound;
   }
   if (tankGroup == 7 || (!pointFound && anyQuadrant)) { // middle bottom left
-    for (var i = occ.world.length/2; i >= 0 && !pointFound; i--) {
+    for (var i = 0; i < occ.world.length/2 && !pointFound; i++) {
       for (var j = occ.world[i].length/2; j < 3 * occ.world[i].length/4 && !pointFound; j++) {
         pointFound = shouldIGoToThisPoint(i, j, occ.world[i][j], tank);
       }
@@ -178,7 +178,7 @@ function explore(tank, anyQuadrant) {
     finishedMyQuadrant = !pointFound;
   }
   if (tankGroup == 8 || (!pointFound && anyQuadrant)) { // middle bottom right
-    for (var i = occ.world.length/2; i < occ.world.length && !pointFound; i++) {
+    for (var i = occ.world.length - 1; i >= occ.world.length/2 && !pointFound; i--) {
       for (var j = occ.world[i].length/2; j < 3 * occ.world[i].length/4 && !pointFound; j++) {
         pointFound = shouldIGoToThisPoint(i, j, occ.world[i][j], tank);
       }
@@ -196,7 +196,7 @@ function moveToPosition(tank, pos, callback) {
   var angle = Math.atan2(pos.y-tank.loc.y,pos.x-tank.loc.x);
   var relativeAngle = Math.atan2(Math.sin(angle - tank.angle), Math.cos(angle - tank.angle));
   var distance = Math.sqrt(Math.pow(pos.x-tank.loc.x,2)+Math.pow(pos.y-tank.loc.y,2));
-  client.speed(tank.index, Math.min(distance/60,1));
+  client.speed(tank.index, 1);
   client.angvel(tank.index, relativeAngle/2, callback);
   client.shoot(tank.index);
 };
