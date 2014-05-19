@@ -16,7 +16,7 @@ if (process.argv.length > 2) {
   process.exit();
 }
 
-var constants, occ;
+var worldSize, constants, occ;
 
 init();
 
@@ -28,7 +28,7 @@ function init() {
 }
 
 function continueInit() {
-  var worldSize = parseInt(constants['worldsize'], 10);
+  worldSize = parseInt(constants['worldsize'], 10);
   var pos = parseFloat(constants['truepositive']);
   var pnons = parseFloat(constants['truenegative']);
   var ps = 0.01;
@@ -62,6 +62,24 @@ function updateContinously() {
   );
 }
 
+function shouldIGoToThisPoint(i, j, val, tank) {
+  var obstacleConf = .005;
+  var clearConf = 0.3;
+  
+  if (val > obstacleConf  && val < clearConf) {
+    
+    console.log("world coords: " + i + ":" + j);
+
+    moveToPosition(
+      tank,
+      {x: i - worldSize/2, y: worldSize/2 - j},
+      null
+    );
+    return true;
+  }
+  return false;
+}
+
 function onUpdate(state) {
   var myTanks = state[0];
   myTanks.forEach(function(tank) {
@@ -72,12 +90,42 @@ function onUpdate(state) {
       for (var i = 0; i < grid.length; i++) {
         for (var j = 0; j < grid[i].length; j++) {
           var reading = grid[i][j];
-          if ((i + pos.x + 400) >= 800 || (j - pos.y + 400) >= 800) continue;
-          if ((i + pos.x + 400) < 0 || (j - pos.y + 400) < 0) continue;
-          occ.update(i + pos.x + 400, j - pos.y + 400, reading);
+          if ((i + pos.x + worldSize/2) >= worldSize || (j - pos.y + worldSize/2) >= worldSize) continue;
+          if ((i + pos.x + worldSize/2) < 0 || (j - pos.y + worldSize/2) < 0) continue;
+          occ.update(i + pos.x + worldSize/2, j - pos.y + worldSize/2, reading);
         };
       }
     });
+
+
+    var tankGroup = (tank.index % 4) + 1;
+    var pointFound = false;
+    if (tankGroup == 1) {
+      for (var i = 0; i < occ.world.length && !pointFound; i++) {
+        for (var j = 0; j < occ.world[i].length && !pointFound; j++) {
+          pointFound = shouldIGoToThisPoint(i, j, occ.world[i][j], tank);
+        }
+      }
+    } else if (tankGroup == 2) {
+      for (var i = occ.world.length - 1; i >= 0 && !pointFound; i--) {
+        for (var j = 0; j < occ.world[i].length && !pointFound; j++) {
+          pointFound = shouldIGoToThisPoint(i, j, occ.world[i][j], tank);
+        }
+      }
+    } else if (tankGroup == 3) {
+      for (var i = 0; i < occ.world.length && !pointFound; i++) {
+        for (var j = occ.world[i].length - 1; j >= 0 && !pointFound; j--) {
+          pointFound = shouldIGoToThisPoint(i, j, occ.world[i][j], tank);
+        }
+      }
+    } else if (tankGroup == 4) {
+      for (var i = occ.world.length - 1; i >= 0 && !pointFound; i--) {
+        for (var j = occ.world[i].length - 1; j >= 0 && !pointFound; j--) {
+          pointFound = shouldIGoToThisPoint(i, j, occ.world[i][j], tank);
+        }
+      }
+    }
+
 
 /*    var gradient = pf.gradient([tank.loc.x, tank.loc.y], fields);
     var position = {
@@ -95,10 +143,11 @@ function onUpdate(state) {
 }
 
 function moveToPosition(tank, pos, callback) {
+  console.log("tank " + tank.index + " moving to point " + pos.x + "," + pos.y);
+
   var angle = Math.atan2(pos.y-tank.loc.y,pos.x-tank.loc.x);
   var relativeAngle = Math.atan2(Math.sin(angle - tank.angle), Math.cos(angle - tank.angle));
   var distance = Math.sqrt(Math.pow(pos.x-tank.loc.x,2)+Math.pow(pos.y-tank.loc.y,2));
   client.speed(tank.index, Math.min(distance/60,1));
   client.angvel(tank.index, relativeAngle/2, callback);
-  client.shoot(tank.index);
 };
