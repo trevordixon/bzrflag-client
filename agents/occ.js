@@ -70,9 +70,9 @@ function shouldIGoToThisPoint(i, j, val, fields) {
     fields.push({
       location: [i - worldSize/2, worldSize/2 - j],
       radius: 1,
-      spread: 1500,
+      spread: 15,
       type: 'avoid',
-      alpha: 1000000
+      alpha: 100
     });
     return false;
   } else if (val > obstacleConf  && val < clearConf) { // is undiscovered
@@ -131,6 +131,8 @@ function explore(tank, anyQuadrant) {
       }
     }
     console.log("Tank " + tank.index + " working in quadrant 1");
+    if (pointFound)
+      seekFields(tank, pFields);
   } 
   if (tankGroup == 2 || (!pointFound && anyQuadrant)) { // top right
     for (var i = occ.world.length - 1; i >= occ.world.length/2 && !pointFound; i--) {
@@ -140,6 +142,8 @@ function explore(tank, anyQuadrant) {
       }
     }
     console.log("Tank " + tank.index + " working in quadrant 2");
+    if (pointFound)
+      seekFields(tank, pFields);
   }
   if (tankGroup == 3 || (!pointFound && anyQuadrant)) { // bottom left
     for (var i = 0; i < occ.world.length/2 && !pointFound; i++) {
@@ -149,6 +153,8 @@ function explore(tank, anyQuadrant) {
       }
     }
     console.log("Tank " + tank.index + " working in quadrant 3");
+    if (pointFound)
+      seekFields(tank, pFields);
   }
   if (tankGroup == 4 || (!pointFound && anyQuadrant)) { // bottom right
     for (var i = occ.world.length - 1; i >= occ.world.length/2 && !pointFound; i--) {
@@ -158,6 +164,8 @@ function explore(tank, anyQuadrant) {
       }
     }
     console.log("Tank " + tank.index + " working in quadrant 4");
+    if (pointFound)
+      seekFields(tank, pFields);
   }
   //from inside to outside
   if (tankGroup == 5 || (!pointFound && anyQuadrant)) { // middle top left
@@ -168,6 +176,8 @@ function explore(tank, anyQuadrant) {
       }
     }
     console.log("Tank " + tank.index + " working in quadrant 5");
+    if (pointFound)
+      seekFields(tank, pFields);
   }
   if (tankGroup == 6 || (!pointFound && anyQuadrant)) { // middle top right
     for (var i = occ.world.length/2; i < occ.world.length && !pointFound; i++) {
@@ -177,6 +187,8 @@ function explore(tank, anyQuadrant) {
       }
     }
     console.log("Tank " + tank.index + " working in quadrant 6");
+    if (pointFound)
+      seekFields(tank, pFields);
   }
   if (tankGroup == 7 || (!pointFound && anyQuadrant)) { // middle bottom left
     for (var i = occ.world.length/2; i >= 0 && !pointFound; i--) {
@@ -186,6 +198,8 @@ function explore(tank, anyQuadrant) {
       }
     }
     console.log("Tank " + tank.index + " working in quadrant 7");
+    if (pointFound)
+      seekFields(tank, pFields);
   }
   if (tankGroup == 8 || (!pointFound && anyQuadrant)) { // middle bottom right
     for (var i = occ.world.length/2; i < occ.world.length && !pointFound; i++) {
@@ -195,23 +209,24 @@ function explore(tank, anyQuadrant) {
       }
     }
     console.log("Tank " + tank.index + " working in quadrant 8");
-  }
-
-  if (pointFound)
-  {
-    var gradient = pf.gradient([tank.loc.x, tank.loc.y], pFields);
-    var position = {
-      "x": tank.loc.x + gradient[0],
-      "y": tank.loc.y + gradient[1]
-    }
-    moveToPosition(tank, position, function() {
-      //console.log('updated instructions in ' + (Date.now() - start));
-    });
+    if (pointFound)
+      seekFields(tank, pFields);
   }
 
   return !pointFound;
 
   occ.sendVizUpdates();
+}
+
+function seekFields(tank, fields) {
+  var gradient = pf.gradient([tank.loc.x, tank.loc.y], fields);
+  var position = {
+    "x": tank.loc.x + gradient[0],
+    "y": tank.loc.y + gradient[1]
+  }
+  moveToPosition(tank, position, function() {
+    //console.log('updated instructions in ' + (Date.now() - start));
+  });
 }
 
 function moveToPosition(tank, pos, callback) {
