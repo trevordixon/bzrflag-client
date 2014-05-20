@@ -67,21 +67,13 @@ function shouldIGoToThisPoint(i, j, val, fields) {
   var clearConf = 0.101;
   
   if (val < obstacleConf) { // is obstacle
-    fields.push({
-      location: [i - worldSize/2, worldSize/2 - j],
-      radius: 1,
-      spread: 15,
-      type: 'avoid',
-      alpha: 100
-    });
-    return false;
   } else if (val > obstacleConf  && val < clearConf) { // is undiscovered
     fields.push({
       location: [i - worldSize/2, worldSize/2 - j],
       radius: 1,
       spread: 40,
       type: 'seek',
-      alpha: 10
+      alpha: 1
     });
     return true;
   }
@@ -122,10 +114,23 @@ function explore(tank, anyQuadrant) {
   var pointFound = false;
   var pFields = [];
 
+  for (var i = occ.occupied.length - 1; i >= 0; i--) {
+    var cell = occ.occupied[i];
+    pFields.push({
+      location: [cell[0] - worldSize/2, worldSize/2 - cell[1]],
+      radius: 1,
+      spread: 5,
+      type: 'avoid',
+      alpha: 50
+    });
+  };
+
+
+
   // from outside in
   if (tankGroup == 1 || (!pointFound && anyQuadrant)) { // top left
-    for (var i = 0; i < occ.world.length/2 && !pointFound; i++) {
-      for (var j = 0; j < occ.world[i].length/4 && !pointFound; j++) {
+    for (var i = 0; i < occ.world.length/2; i++) {
+      for (var j = 0; j < occ.world[i].length/4; j++) {
         if (shouldIGoToThisPoint(i, j, occ.world[i][j], pFields))
           pointFound = true;
       }
@@ -135,8 +140,8 @@ function explore(tank, anyQuadrant) {
       seekFields(tank, pFields);
   } 
   if (tankGroup == 2 || (!pointFound && anyQuadrant)) { // top right
-    for (var i = occ.world.length - 1; i >= occ.world.length/2 && !pointFound; i--) {
-      for (var j = 0; j < occ.world[i].length/4 && !pointFound; j++) {
+    for (var i = occ.world.length - 1; i >= occ.world.length/2; i--) {
+      for (var j = 0; j < occ.world[i].length/4; j++) {
         if (shouldIGoToThisPoint(i, j, occ.world[i][j], pFields))
           pointFound = true;
       }
@@ -146,8 +151,8 @@ function explore(tank, anyQuadrant) {
       seekFields(tank, pFields);
   }
   if (tankGroup == 3 || (!pointFound && anyQuadrant)) { // bottom left
-    for (var i = 0; i < occ.world.length/2 && !pointFound; i++) {
-      for (var j = occ.world[i].length - 1; j >= 3 * occ.world[i].length/4 && !pointFound; j--) {
+    for (var i = 0; i < occ.world.length/2; i++) {
+      for (var j = occ.world[i].length - 1; j >= 3 * occ.world[i].length/4; j--) {
         if (shouldIGoToThisPoint(i, j, occ.world[i][j], pFields))
           pointFound = true;
       }
@@ -157,8 +162,8 @@ function explore(tank, anyQuadrant) {
       seekFields(tank, pFields);
   }
   if (tankGroup == 4 || (!pointFound && anyQuadrant)) { // bottom right
-    for (var i = occ.world.length - 1; i >= occ.world.length/2 && !pointFound; i--) {
-      for (var j = occ.world[i].length - 1; j >= 3 * occ.world[i].length/4 && !pointFound; j--) {
+    for (var i = occ.world.length - 1; i >= occ.world.length/2; i--) {
+      for (var j = occ.world[i].length - 1; j >= 3 * occ.world[i].length/4; j--) {
         if (shouldIGoToThisPoint(i, j, occ.world[i][j], pFields))
           pointFound = true;
       }
@@ -169,8 +174,8 @@ function explore(tank, anyQuadrant) {
   }
   //from inside to outside
   if (tankGroup == 5 || (!pointFound && anyQuadrant)) { // middle top left
-    for (var i = occ.world.length/2; i >= 0 && !pointFound; i--) {
-      for (var j = occ.world[i].length/2; j >= occ.world[i].length/4 && !pointFound; j--) {
+    for (var i = occ.world.length/2; i >= 0; i--) {
+      for (var j = occ.world[i].length/2; j >= occ.world[i].length/4; j--) {
         if (shouldIGoToThisPoint(i, j, occ.world[i][j], pFields))
           pointFound = true;
       }
@@ -180,8 +185,8 @@ function explore(tank, anyQuadrant) {
       seekFields(tank, pFields);
   }
   if (tankGroup == 6 || (!pointFound && anyQuadrant)) { // middle top right
-    for (var i = occ.world.length/2; i < occ.world.length && !pointFound; i++) {
-      for (var j = occ.world[i].length/2; j >= occ.world[i].length/4 && !pointFound; j--) {
+    for (var i = occ.world.length/2; i < occ.world.length; i++) {
+      for (var j = occ.world[i].length/2; j >= occ.world[i].length/4; j--) {
         if (shouldIGoToThisPoint(i, j, occ.world[i][j], pFields))
           pointFound = true;
       }
@@ -191,8 +196,8 @@ function explore(tank, anyQuadrant) {
       seekFields(tank, pFields);
   }
   if (tankGroup == 7 || (!pointFound && anyQuadrant)) { // middle bottom left
-    for (var i = occ.world.length/2; i >= 0 && !pointFound; i--) {
-      for (var j = occ.world[i].length/2; j < 3 * occ.world[i].length/4 && !pointFound; j++) {
+    for (var i = occ.world.length/2; i >= 0; i--) {
+      for (var j = occ.world[i].length/2; j < 3 * occ.world[i].length/4; j++) {
         if (shouldIGoToThisPoint(i, j, occ.world[i][j], pFields))
           pointFound = true;
       }
@@ -202,15 +207,17 @@ function explore(tank, anyQuadrant) {
       seekFields(tank, pFields);
   }
   if (tankGroup == 8 || (!pointFound && anyQuadrant)) { // middle bottom right
-    for (var i = occ.world.length/2; i < occ.world.length && !pointFound; i++) {
-      for (var j = occ.world[i].length/2; j < 3 * occ.world[i].length/4 && !pointFound; j++) {
+    for (var i = occ.world.length/2; i < occ.world.length; i++) {
+      for (var j = occ.world[i].length/2; j < 3 * occ.world[i].length/4; j++) {
         if (shouldIGoToThisPoint(i, j, occ.world[i][j], pFields))
           pointFound = true;
       }
     }
     console.log("Tank " + tank.index + " working in quadrant 8");
     if (pointFound)
+    {
       seekFields(tank, pFields);
+    }
   }
 
   return !pointFound;
