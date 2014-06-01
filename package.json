@@ -4,6 +4,7 @@
   "dependencies": {
     "BZRFlag-nodejs-client": "stringham/BZRFlag-nodejs-client",
     "async": "^0.9.0",
+    "mathjs": "^0.22.0",
     "ws": "^0.4.31"
   }
 }
