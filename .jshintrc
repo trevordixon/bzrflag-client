@@ -1,0 +1,10 @@
+{
+  "node": true,
+  "globals": {},
+  "globalstrict": true,
+  "quotmark": "single",
+  "smarttabs": true,
+  "trailing": true,
+  "undef": true,
+  "unused": true
+}
