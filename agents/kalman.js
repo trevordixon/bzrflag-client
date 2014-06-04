@@ -1,6 +1,7 @@
 'use strict';
 
 var BZRClient = require('bzrflag-client');
+var filters = [];
 
 var client;
 
@@ -12,14 +13,14 @@ if (process.argv.length > 2) {
   process.exit();
 }
 
-var filter = new (require('../lib/kalman'))();
+
 var constants, shotSpeed, bulletLife;
 
 client.getConstants(function(c) {
   constants = c;
   shotSpeed = parseFloat(c.shotspeed);
   bulletLife = c.shotrange/c.shotspeed;
-  setInterval(aimAndFire, 500);
+  setInterval(aimAndFire, 100);
 });
 
 function getTransform(tank) {
@@ -67,6 +68,8 @@ function yAtTime(state, t) {
 
 function aimAndFire() {
   client.getMyTanks(function(tanks) {
+    filters.unshift(new (require('../lib/kalman'))()); //add to front of array
+
     var me = tanks[0];
     // console.log(me);
     var t = getTransform(me);
@@ -74,37 +77,45 @@ function aimAndFire() {
     client.getOtherTanks(function(tanks) {
       var target = tanks[0];
       // console.log(target);
-      var guess = t(filter.update(target.loc.x, target.loc.y)[0]);
-      console.log(guess);
-      
-      var timeToCrossPath = collisionTime(guess);
-      // If time > bulletTime, maybe don't fire.
+      var guess, curFilter;
 
-      var yAtCollisionTime = yAtTime(guess, timeToCrossPath);
-      // console.log('Cross in ' + timeToCrossPath + ' at ' + yAtCollisionTime);
+      for (var f = 0; f <= 40 && f < filters.length; f++) {
+        var res = filters[f].update(target.loc.x, target.loc.y);
+        if (f == 40) {
+          guess = t(res[0]);
+          curFilter = filters[f];
+        }
+      };
 
-      var timeForBulletToGetToY = yAtCollisionTime/shotSpeed;
-      // console.log('Bullet will take ' + timeForBulletToGetToY);
+      if (guess && curFilter)
+      {
+        console.log(guess);
+        
+        var timeToCrossPath = collisionTime(guess);
+        // If time > bulletTime, maybe don't fire.
 
-      if (Math.abs(timeToCrossPath-timeForBulletToGetToY) < 0.3) {
-        // We might hit it. Fire.
-        client.shoot(0);
+        var yAtCollisionTime = yAtTime(guess, timeToCrossPath);
+        // console.log('Cross in ' + timeToCrossPath + ' at ' + yAtCollisionTime);
+
+        var timeForBulletToGetToY = yAtCollisionTime/shotSpeed;
+        // console.log('Bullet will take ' + timeForBulletToGetToY);
+
+        var pathCrossDiff = Math.abs(timeToCrossPath-timeForBulletToGetToY);
+        var yDist = Math.abs(guess[3]);
+        console.log("path diff: ", pathCrossDiff, "yDist: ", yDist);
+        if (pathCrossDiff < 3 && yDist < 350) {
+          // We might hit it. Fire.
+          client.shoot(0);
+        }
+
+     //   guess = curFilter.project(guess);
+        var angle = Math.atan2(guess[0], guess[3]);
+
+        // Experiment with this. Too slow right now.
+        var correctiveAngvel = 3.25 * (-angle/(Math.PI/2))
+        console.log("angvel: ", correctiveAngvel);
+        client.angvel(0, correctiveAngvel);
       }
-
-      guess = filter.project(guess);
-      var angle = Math.atan2(guess[0], guess[3]);
-
-      if (angle < -Math.PI/2) {
-        return client.angvel(0, 1);
-      }
-
-      if (angle > Math.PI/2) {
-        return client.angvel(0, -1);
-      }
-
-      // Experiment with this. Too slow right now.
-      console.log("angvel: ", 3.5 * (-angle/(Math.PI/2)));
-      client.angvel(0, 3.5 * (-angle/(Math.PI/2)));
     });
   });
 }
