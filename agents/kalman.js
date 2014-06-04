@@ -103,7 +103,8 @@ function aimAndFire() {
       }
 
       // Experiment with this. Too slow right now.
-      client.angvel(0, 1.5 * (-angle/(Math.PI/2)));
+      console.log("angvel: ", 3.5 * (-angle/(Math.PI/2)));
+      client.angvel(0, 3.5 * (-angle/(Math.PI/2)));
     });
   });
 }
