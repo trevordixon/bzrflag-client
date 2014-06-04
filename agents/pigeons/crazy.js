@@ -9,11 +9,12 @@ if (process.argv.length > 2) {
 	console.error('Port required as second argument.')
 }
 
-while (true)
-{
-	console.log("updating");
+(function randomMove() {
 	// use Math.random() here.
-	client.speed(0, 1);
-	client.angvel(0, 0.5);
-}
+	var speed = Math.random();
+	var angvel = Math.random() * 2 - 1;
+	client.speed(0, speed);
+	client.angvel(0, angvel);
 
+    setTimeout(randomMove, 1500);
+})();
