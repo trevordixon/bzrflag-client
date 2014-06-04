@@ -85,7 +85,7 @@ function aimAndFire() {
           guess = t(res[0]);
           curFilter = filters[f];
         }
-      };
+      }
 
       if (filters.length > 40)
         filters.pop();
@@ -105,18 +105,18 @@ function aimAndFire() {
 
         var pathCrossDiff = Math.abs(timeToCrossPath-timeForBulletToGetToY);
         var yDist = Math.abs(guess[3]);
-        console.log("path diff: ", pathCrossDiff, "yDist: ", yDist);
-        if (pathCrossDiff < 3 && yDist < 350) {
+        console.log('path diff: ', pathCrossDiff, 'yDist: ', yDist);
+        if (pathCrossDiff < 0.2 && yDist < 350) {
           // We might hit it. Fire.
           client.shoot(0);
         }
 
-        var futurePos = curFilter.project(guess);
+        var futurePos = curFilter.project(curFilter.project(curFilter.project(guess)));
         var angle = Math.atan2(futurePos[0], futurePos[3]);
 
         // Experiment with this. Too slow right now.
-        var correctiveAngvel = 3.25 * (-angle/(Math.PI/2))
-        console.log("angvel: ", correctiveAngvel);
+        var correctiveAngvel = 10 * (-angle/(Math.PI/2));
+        console.log('angvel: ', correctiveAngvel);
         client.angvel(0, correctiveAngvel);
       }
     });
