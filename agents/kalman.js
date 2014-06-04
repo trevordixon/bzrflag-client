@@ -87,6 +87,9 @@ function aimAndFire() {
         }
       };
 
+      if (filters.length > 40)
+        filters.pop();
+
       if (guess && curFilter)
       {
         console.log(guess);
@@ -108,8 +111,8 @@ function aimAndFire() {
           client.shoot(0);
         }
 
-     //   guess = curFilter.project(guess);
-        var angle = Math.atan2(guess[0], guess[3]);
+        var futurePos = curFilter.project(guess);
+        var angle = Math.atan2(futurePos[0], futurePos[3]);
 
         // Experiment with this. Too slow right now.
         var correctiveAngvel = 3.25 * (-angle/(Math.PI/2))
