@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>occGrid Viz</title>
+<script src="http://rawgit.com/joewalnes/reconnecting-websocket/master/reconnecting-websocket.js"></script>
+</head>
+<body>
+  
+  <Border>
+    <canvas id="viz" HorizontalAlignment="Center" VerticalAlignment="Center"
+            Width="0" Height="0"
+            RenderTransform="1 0 0 -1 0 0">
+    </canvas>
+  </Border>
+
+  <script>
+  var ws = new ReconnectingWebSocket('ws://localhost:4000');
+  ws.onopen = function() { console.info('Connected'); };
+  ws.onclose = function() { console.info('Disconnected'); ws.onmessage = init; };
+  ws.onmessage = init;
+
+  var canvas = document.getElementById('viz');
+  var ctx = canvas.getContext('2d');
+
+  function drawTank(guess, color) {
+    ctx.fillStyle = color;
+    ctx.fillRect(guess[0], guess[3], 3, 3);
+    console.log(guess);
+  }
+
+  // Handles the first message from the server after connecting. Array of arrays of initial values.
+  function init() {
+    canvas.width = canvas.height = 800;
+
+
+    // Once initial world has been received, switch to use a new onmessage handler.
+    ws.onmessage = update;
+  }
+
+  function update(e) {
+    var updates = JSON.parse(e.data);
+    
+    // Store the current transformation matrix
+    ctx.save();
+
+    // Use the identity matrix while clearing the canvas
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+
+    ctx.fillStyle = "#9ea7b8";
+    ctx.fillRect(0,0,canvas.width,canvas.height);
+
+    // Restore the transform
+    ctx.restore();
+
+    var current = updates.current;
+    var future = updates.future;
+
+    drawTank(current, "Green");
+    drawTank(future, "Red");
+    //'rgb('+c+','+c+','+c+')'
+  }
+  </script>
+</body>
+</html>

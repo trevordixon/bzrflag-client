@@ -1,6 +1,9 @@
 'use strict';
 
 var BZRClient = require('bzrflag-client');
+var kalmanVisualization = require('../lib/kalmanviz');
+var kalmanViz = new kalmanVisualization();
+kalmanViz.initWebSocket();
 var filters = [];
 
 var client;
@@ -92,7 +95,7 @@ function aimAndFire() {
 
       if (guess && curFilter)
       {
-        console.log(guess);
+        //console.log(guess);
         
         var timeToCrossPath = collisionTime(guess);
         // If time > bulletTime, maybe don't fire.
@@ -105,14 +108,17 @@ function aimAndFire() {
 
         var pathCrossDiff = Math.abs(timeToCrossPath-timeForBulletToGetToY);
         var yDist = Math.abs(guess[3]);
-        console.log('path diff: ', pathCrossDiff, 'yDist: ', yDist);
+        console.log('path diff: ', pathCrossDiff);
+        console.log( 'yDist: ', yDist);
         if (pathCrossDiff < 0.2 && yDist < 350) {
           // We might hit it. Fire.
           client.shoot(0);
         }
 
-        var futurePos = curFilter.project(curFilter.project(curFilter.project(guess)));
+        var futurePos = curFilter.project(guess);
         var angle = Math.atan2(futurePos[0], futurePos[3]);
+
+        kalmanViz.sendVizUpdates(guess, futurePos);
 
         // Experiment with this. Too slow right now.
         var correctiveAngvel = 10 * (-angle/(Math.PI/2));
