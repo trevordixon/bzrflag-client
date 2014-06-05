@@ -52,7 +52,8 @@
     ctx.fillRect(0,0,canvas.width,canvas.height);
 
     // Restore the transform
-    ctx.restore();
+    var ng = -updates.angle - Math.PI/2;
+    ctx.setTransform(-Math.cos(ng), -Math.sin(ng), -Math.sin(ng), Math.cos(ng), 400, 400);
 
     var current = updates.current;
     var future = updates.future;

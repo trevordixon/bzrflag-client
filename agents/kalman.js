@@ -118,7 +118,7 @@ function aimAndFire() {
         var futurePos = curFilter.project(guess);
         var angle = Math.atan2(futurePos[0], futurePos[3]);
 
-        kalmanViz.sendVizUpdates(guess, futurePos);
+        kalmanViz.sendVizUpdates(guess, futurePos, me.angle);
 
         // Experiment with this. Too slow right now.
         var correctiveAngvel = 10 * (-angle/(Math.PI/2));
